@@ -2,53 +2,66 @@ package com.filmaddix.backend.service;
 
 import com.filmaddix.backend.dto.CreateMovieRequest;
 import com.filmaddix.backend.dto.MovieDto;
+import com.filmaddix.backend.domain.Movie;
 import com.filmaddix.backend.exception.ResourceNotFoundException;
+import com.filmaddix.backend.repository.MovieRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class MovieService {
 
-    private final List<MovieDto> movies = new ArrayList<>();
+    private final MovieRepository movieRepository;
 
-    public MovieService() {
-        movies.add(new MovieDto(1L, "Inception", "English", 8.8, "Netflix"));
-        movies.add(new MovieDto(2L, "RRR", "Telugu", 8.9, "Netflix"));
+    public MovieService(MovieRepository movieRepository) {
+        this.movieRepository = movieRepository;
     }
 
+    // GET /movies
     public List<MovieDto> getAllMovies(String ott) {
-        if (ott == null) return movies;
+
+        List<Movie> movies = (ott == null)
+                ? movieRepository.findAll()
+                : movieRepository.findByOttPlatformIgnoreCase(ott);
 
         return movies.stream()
-                .filter(m -> m.getOttPlatform().equalsIgnoreCase(ott))
+                .map(this::toDto)
                 .toList();
     }
 
+    // GET /movies/{id}
     public MovieDto getMovieById(Long id) {
-        return movies.stream()
-                .filter(m -> m.getId().equals(id))
-                .findFirst()
+        Movie movie = movieRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Movie not found with id: " + id)
                 );
+
+        return toDto(movie);
     }
 
-    // ⭐ NEW METHOD
+    // POST /movies
     public MovieDto createMovie(CreateMovieRequest request) {
 
-        Long newId = (long) (movies.size() + 1);
+        Movie movie = new Movie();
+        movie.setTitle(request.getTitle());
+        movie.setLanguage(request.getLanguage());
+        movie.setRating(request.getRating());
+        movie.setOttPlatform(request.getOttPlatform());
 
-        MovieDto movie = new MovieDto(
-                newId,
-                request.getTitle(),
-                request.getLanguage(),
-                request.getRating(),
-                request.getOttPlatform()
+        Movie saved = movieRepository.save(movie);
+
+        return toDto(saved);
+    }
+
+    // 🔁 Entity → DTO mapping
+    private MovieDto toDto(Movie movie) {
+        return new MovieDto(
+                movie.getId(),
+                movie.getTitle(),
+                movie.getLanguage(),
+                movie.getRating(),
+                movie.getOttPlatform()
         );
-
-        movies.add(movie);
-        return movie;
     }
 }
