@@ -2,33 +2,40 @@ package com.filmaddix.backend.dto;
 
 import java.time.LocalDateTime;
 
-public class ApiResponse {
+public class ApiResponse<T> {
 
     private String status;
     private String message;
-    private Object data;
-    private String errorCode;
+    private T data;
     private LocalDateTime timestamp;
 
-    public ApiResponse(String status, String message) {
-        this.status = status;
-        this.message = message;
-        this.timestamp = LocalDateTime.now();
-    }
-
-    public ApiResponse(String status, String message, Object data) {
+    private ApiResponse(String status, String message, T data) {
         this.status = status;
         this.message = message;
         this.data = data;
         this.timestamp = LocalDateTime.now();
     }
 
-    public ApiResponse(String status, String message, String errorCode) {
-        this.status = status;
-        this.message = message;
-        this.errorCode = errorCode;
-        this.timestamp = LocalDateTime.now();
+    /* =========================
+       Static Factory Methods
+       ========================= */
+
+    public static <T> ApiResponse<T> success(T data, String message) {
+        return new ApiResponse<>("SUCCESS", message, data);
     }
+
+    public static <T> ApiResponse<T> error(String message) {
+        return new ApiResponse<>("ERROR", message, null);
+    }
+
+    public static <T> ApiResponse<T> error(String message, T data) {
+        return new ApiResponse<>("ERROR", message, data);
+    }
+
+
+    /* =========================
+       Getters
+       ========================= */
 
     public String getStatus() {
         return status;
@@ -38,12 +45,8 @@ public class ApiResponse {
         return message;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
-    }
-
-    public String getErrorCode() {
-        return errorCode;
     }
 
     public LocalDateTime getTimestamp() {

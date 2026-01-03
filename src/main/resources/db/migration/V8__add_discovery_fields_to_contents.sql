@@ -1,0 +1,4 @@
+ALTER TABLE contents
+ADD COLUMN is_trending BOOLEAN DEFAULT FALSE,
+ADD COLUMN popularity_score INTEGER DEFAULT 0,
+ADD COLUMN searchable_title VARCHAR(255);

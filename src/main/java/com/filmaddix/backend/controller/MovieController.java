@@ -17,32 +17,26 @@ public class MovieController {
     }
 
     @GetMapping
-    public ApiResponse getMovies(@RequestParam(required = false) String ott) {
-        return new ApiResponse(
-                "SUCCESS",
-                "Movies fetched successfully",
-                movieService.getAllMovies(ott)
+    public ApiResponse<?> getMovies(@RequestParam(required = false) String ott) {
+        return ApiResponse.success(
+                movieService.getAllMovies(ott),
+                "Movies fetched successfully"
         );
     }
 
     @GetMapping("/{id}")
-    public ApiResponse getMovieById(@PathVariable Long id) {
-        return new ApiResponse(
-                "SUCCESS",
-                "Movie fetched successfully",
-                movieService.getMovieById(id)
+    public ApiResponse<?> getMovieById(@PathVariable Long id) {
+        return ApiResponse.success(
+                movieService.getMovieById(id),
+                "Movie fetched successfully"
         );
     }
 
-    // ⭐ POST API
     @PostMapping
-    public ApiResponse createMovie(
-           @Valid @RequestBody CreateMovieRequest request
-    ) {
-        return new ApiResponse(
-                "SUCCESS",
-                "Movie created successfully",
-                movieService.createMovie(request)
+    public ApiResponse<?> createMovie(@Valid @RequestBody CreateMovieRequest request) {
+        return ApiResponse.success(
+                movieService.createMovie(request),
+                "Movie created successfully"
         );
     }
 }
